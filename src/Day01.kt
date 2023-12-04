@@ -1,15 +1,32 @@
 fun main() {
     fun part1(input: List<String>): Int {
-        return input.size
+        return input
+            .map { it.replace("\\D".toRegex(), "") }
+            .map { "${it.first()}${it.last()}" }
+            .sumOf { it.toInt() }
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        println(input)
+        return input
+            .map { it.replace("one", "one1one") }
+            .map { it.replace("two", "two2two") }
+            .map { it.replace("three", "three3three") }
+            .map { it.replace("four", "four4four") }
+            .map { it.replace("five", "five5five") }
+            .map { it.replace("six", "six6six") }
+            .map { it.replace("seven", "seven7seven") }
+            .map { it.replace("eight", "eight8eight") }
+            .map { it.replace("nine", "nine9") }
+            .let { part1(it) }
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day01_test")
-    check(part1(testInput) == 1)
+    val part2Result = part2(testInput)
+
+    println("Test input part 2: $part2Result")
+    check(part2(testInput) == 281)
 
     val input = readInput("Day01")
     part1(input).println()
