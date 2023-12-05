@@ -7,16 +7,62 @@ fun main() {
         val numElements: Long
     )
 
-    fun Set<RangeMapEntry>.get(k: Long): Long {
-        return this.find {
-            k in it.keyRangeStart..(it.keyRangeStart + it.numElements)
-        }?.let {
-            it.valueRangeStart + (k - it.keyRangeStart)
-        } ?: k
+    fun LongRange.intersectRange(with: LongRange): LongRange {
+        val startRange = if (with.first > this.first) with.first else this.first
+        val endRange = if (with.last < this.last) with.last else this.last
+        return startRange..endRange
+    }
+
+    fun LongRange.notIntersected(withRanges: Set<LongRange>): Set<LongRange> {
+        if (withRanges.isEmpty()) {
+            return setOf(this)
+        }
+        var lastNotIntersectedValue = this.first
+
+        return withRanges.sortedBy { it.first }
+            .map { otherRange ->
+                val intersection = this.intersectRange(otherRange)
+                val range = lastNotIntersectedValue until intersection.first
+                lastNotIntersectedValue = otherRange.last + 1
+                range
+            }
+            .filterNot { it.isEmpty() }
+            .toMutableSet().apply {
+                val finalRange = lastNotIntersectedValue..this@notIntersected.last
+                if (!finalRange.isEmpty()) {
+                    add(finalRange)
+                }
+            }
+    }
+
+    fun Set<RangeMapEntry>.intersectRange(k: LongRange): Set<LongRange> {
+        val curMatchedKeys = mutableSetOf<LongRange>()
+        val curMatchedValues = mutableSetOf<LongRange>()
+
+        this.forEach { rangeMapEntry ->
+            val keyRange = rangeMapEntry.keyRangeStart..(rangeMapEntry.keyRangeStart + rangeMapEntry.numElements)
+            val matchedKeys = keyRange.intersectRange(k)
+            if (!matchedKeys.isEmpty()) {
+                val matchedSize = matchedKeys.last - matchedKeys.first + 1
+                val matchedValueStart = rangeMapEntry.valueRangeStart + (matchedKeys.first - rangeMapEntry.keyRangeStart)
+                val matchedValues = matchedValueStart until matchedValueStart + matchedSize
+                curMatchedKeys.add(matchedKeys)
+                curMatchedValues.add(matchedValues)
+            }
+        }
+
+        curMatchedValues.addAll(k.notIntersected(curMatchedKeys))
+        return curMatchedValues.filterNot { it.isEmpty() }.toSet()
+    }
+
+    fun Set<RangeMapEntry>.intersectAll(keys: Set<LongRange>): Set<LongRange> {
+        return keys.flatMap { this.intersectRange(it) }
+            .toSet()
     }
 
     data class Almanac(
         val seeds: Set<Long>,
+        val seedsWithRange: Set<LongRange>,
         val seedToSoilMap: Set<RangeMapEntry>,
         val soilToFertilizerMap: Set<RangeMapEntry>,
         val fertilizerToWaterMap: Set<RangeMapEntry>,
@@ -49,10 +95,13 @@ fun main() {
             .split(" ")
             .filter { it.isNotBlank() }
             .map { it.toLong() }
-            .toSet()
+
+        val seedsWithRange = seeds.chunked(2)
+            .map { it[0] until (it[0] + it[1]) }
 
         return Almanac(
-            seeds,
+            seeds.toSet(),
+            seedsWithRange.toSet(),
             parseMapFromInput("seed-to-soil map:", input),
             parseMapFromInput("soil-to-fertilizer map:", input),
             parseMapFromInput("fertilizer-to-water map:", input),
@@ -60,41 +109,50 @@ fun main() {
             parseMapFromInput("light-to-temperature map:", input),
             parseMapFromInput("temperature-to-humidity map:", input),
             parseMapFromInput("humidity-to-location map:", input),
-        ).also { it.println() }
+        )
+    }
+
+    fun calculateMinDistance(seedsRange: Set<LongRange>, almanac: Almanac): Long {
+        return seedsRange
+            .map {
+                almanac.seedToSoilMap.intersectRange(it)
+            }.map {
+                almanac.soilToFertilizerMap.intersectAll(it)
+            }.map {
+                almanac.fertilizerToWaterMap.intersectAll(it)
+            }.map {
+                almanac.waterToLightMap.intersectAll(it)
+            }.map {
+                almanac.lightToTemperatureMap.intersectAll(it)
+            }.map {
+                almanac.temperatureToHumidityMap.intersectAll(it)
+            }.map {
+                almanac.humidityToLocationMap.intersectAll(it)
+            }.flatten()
+            .minOf { it.first }
     }
 
     fun part1(input: List<String>): Long {
         val almanac = parseInput(input)
 
-        return almanac.seeds
-            .map {
-                almanac.seedToSoilMap.get(it)
-            }.map {
-                almanac.soilToFertilizerMap.get(it)
-            }.map {
-                almanac.fertilizerToWaterMap.get(it)
-            }.map {
-                almanac.waterToLightMap.get(it)
-            }.map {
-                almanac.lightToTemperatureMap.get(it)
-            }.map {
-                almanac.temperatureToHumidityMap.get(it)
-            }.map {
-                almanac.humidityToLocationMap.get(it)
-            }.minBy { it }
+        return calculateMinDistance(
+            almanac.seeds
+                .map { it..it }.toSet(), almanac
+        )
     }
 
+    fun part2(input: List<String>): Long {
+        val almanac = parseInput(input)
 
-    fun part2(input: List<String>): Int {
-        return input.size
+        return calculateMinDistance(almanac.seedsWithRange, almanac)
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day${day}_test")
-    val testResult = part1(testInput)
+    val testResult = part2(testInput)
 
     println("Test input result: $testResult")
-    check(testResult == 35L)
+    check(testResult == 46L)
 
     val input = readInput("Day${day}")
     part1(input).println()
