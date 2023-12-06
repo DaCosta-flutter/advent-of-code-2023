@@ -1,12 +1,13 @@
+
 fun main() {
     val day = "00"
 
-    fun part1(input: List<String>): Int {
-        return input.size
+    fun part1(input: List<String>): Long {
+        return input.size.toLong()
     }
 
-    fun part2(input: List<String>): Int {
-        return input.size
+    fun part2(input: List<String>): Long {
+        return input.size.toLong()
     }
 
     // test if implementation meets criteria from the description, like:
@@ -14,7 +15,7 @@ fun main() {
     val testResult = part1(testInput)
 
     println("Test input result: $testResult")
-    check(testResult == 1234)
+    check(testResult == 1234L)
 
     val input = readInput("Day${day}")
     part1(input).println()
