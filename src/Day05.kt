@@ -14,9 +14,6 @@ fun main() {
     }
 
     fun LongRange.notIntersected(withRanges: Set<LongRange>): Set<LongRange> {
-        if (withRanges.isEmpty()) {
-            return setOf(this)
-        }
         var lastNotIntersectedValue = this.first
 
         return withRanges.sortedBy { it.first }
