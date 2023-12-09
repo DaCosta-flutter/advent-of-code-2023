@@ -38,17 +38,6 @@ fun main() {
     fun Card.rankPart1() = cardToRank[this]!!
     fun Card.rankPart2() = if (this == 'J') 0 else cardToRank[this]!!
 
-    fun getHandComparator(handRankSupplier: (Hand) -> Int, cardRankSupplier: (Card) -> Int): Comparator<Hand> = Comparator<Hand> { o1, o2 ->
-        val typeDifference = handRankSupplier.invoke(o1) - handRankSupplier.invoke(o2)
-        if (typeDifference != 0) {
-            typeDifference
-        } else {
-            val firstDiffCardIdx = o1.cards.indices
-                .first { o1.cards[it] != o2.cards[it] }
-            cardRankSupplier.invoke(o1.cards[firstDiffCardIdx]) - cardRankSupplier.invoke(o2.cards[firstDiffCardIdx])
-        }
-    }
-
     fun parseInput(input: List<String>): List<Hand> {
         return input.map { lineStr ->
             lineStr.split(" ").let {
@@ -62,7 +51,11 @@ fun main() {
     fun part1(input: List<String>): Long {
         val hands = parseInput(input)
 
-        return hands.sortedWith(getHandComparator({ it.cards.getTypeRank() }, { it.rankPart1() }))
+        return hands.sortedWith(
+            compareBy(
+                { it.cards.getTypeRank() },
+                { it.cards.map { card -> card.rankPart1() }.reduce { acc, value -> acc * 100 + value } }
+            ))
             .mapIndexed { idx, hand ->
                 (idx + 1) * hand.bid.toLong()
             }.sum()
@@ -71,7 +64,14 @@ fun main() {
     fun part2(input: List<String>): Long {
         val hands = parseInput(input)
 
-        return hands.sortedWith(getHandComparator({ it.cards.transformWithJoker().getTypeRank() }, { it.rankPart2() }))
+        return hands.sortedWith(
+            compareBy(
+                { it.cards.transformWithJoker().getTypeRank() },
+                { it.cards.map { card -> card.rankPart2() }.reduce { acc, value -> acc * 100 + value } }
+            ))
+            .also { it.println() }
+
+            //getHandComparator({ it.cards.transformWithJoker().getTypeRank() }, { it.rankPart2() }))
             .mapIndexed { idx, hand ->
                 (idx + 1) * hand.bid.toLong()
             }.sum()

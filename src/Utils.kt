@@ -19,3 +19,9 @@ fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteA
  * The cleaner shorthand for printing output.
  */
 fun Any?.println() = println(this)
+
+fun check(expected: Any, actual: Any, checkName: String? = null) {
+    if (expected != actual) {
+        throw Exception("Check ${checkName ?: ""} failed. Expected '$expected', but found '$actual'")
+    }
+}
