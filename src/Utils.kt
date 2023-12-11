@@ -25,3 +25,17 @@ fun check(expected: Any, actual: Any, checkName: String? = null) {
         throw Exception("Check ${checkName ?: ""} failed. Expected '$expected', but found '$actual'")
     }
 }
+
+data class Position(
+    val x: Int,
+    val y: Int,
+)
+
+fun Position.up() = this.copy(y = y - 1)
+fun Position.down() = this.copy(y = y - 1)
+fun Position.left() = this.copy(x = y - 1)
+fun Position.right() = this.copy(x = y + 1)
+
+fun Position.allDirections() = setOf(
+    this.up(), this.down(), this.left(), this.right()
+)
