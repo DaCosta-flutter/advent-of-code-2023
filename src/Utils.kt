@@ -2,6 +2,7 @@ import java.math.BigInteger
 import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
+import kotlin.math.abs
 
 /**
  * Reads lines from the given input txt file.
@@ -39,3 +40,5 @@ fun Position.right() = this.copy(x = y + 1)
 fun Position.allDirections() = setOf(
     this.up(), this.down(), this.left(), this.right()
 )
+
+fun Position.cartesianDistance(other: Position): Int = abs(this.x - other.x) + abs(this.y - other.y)

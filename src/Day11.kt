@@ -1,5 +1,3 @@
-import kotlin.math.abs
-
 fun main() {
     val day = "11"
 
@@ -7,20 +5,18 @@ fun main() {
         val galaxies: Set<Position>
     )
 
-    fun Position.distance(other: Position): Int = abs(this.x - other.x) + abs(this.y - other.y)
-
     fun Universe.sumDistanceBetweenAllGalaxies(): Long {
-        val allGalaxyPairs = this.galaxies.flatMap { galaxy ->
-            this.galaxies.map { setOf(it, galaxy) }
-        }
-            .toSet()
+        val allGalaxyPairs = this.galaxies
+            .flatMap { galaxy ->
+                this.galaxies.map { setOf(it, galaxy) }
+            }
+            .toSet() // Remove duplicate pairs
             .map { it.first() to it.last() }
-            .filter { (gal1, gal2) -> gal1 != gal2 }
 
-        return allGalaxyPairs.sumOf { (gal1, gal2) -> gal1.distance(gal2).toLong() }
+        return allGalaxyPairs.sumOf { (gal1, gal2) -> gal1.cartesianDistance(gal2).toLong() }
     }
 
-    fun List<String>.col(colIdx: Int) = this.map { it[colIdx] }.joinToString("")
+    fun List<String>.col(colIdx: Int) = this.map { it[colIdx] }
 
     fun Position.adjustEmptiness(emptyY: Set<Int>, emptyX: Set<Int>, emptinessFactor: Int): Position {
         val yAdjustment = emptyY.count { it < y }.let { if (it > 0) (emptinessFactor - 1) * it else 0 }
