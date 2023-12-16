@@ -33,9 +33,9 @@ data class Position(
 )
 
 fun Position.up() = this.copy(y = y - 1)
-fun Position.down() = this.copy(y = y - 1)
-fun Position.left() = this.copy(x = y - 1)
-fun Position.right() = this.copy(x = y + 1)
+fun Position.down() = this.copy(y = y + 1)
+fun Position.left() = this.copy(x = x - 1)
+fun Position.right() = this.copy(x = x + 1)
 
 fun Position.allDirections() = setOf(
     this.up(), this.down(), this.left(), this.right()
