@@ -32,6 +32,19 @@ data class Position(
     val y: Int,
 )
 
+fun List<List<Char>>.at(pos: Position) = this[pos.y][pos.x]
+fun Position.inside(list: List<List<Any>>) = x > 0 && y > 0 && y < list.size && x < list[y].size
+
+fun Set<Position>.to2dList(ch: Char = '#', nonFilled: Char = ' '): MutableList<MutableList<Char>> {
+    val size = Position(this.maxOf { it.x }, this.maxOf { it.y })
+
+    return (0..size.y).map { y ->
+        (0..size.x).map { x ->
+            if (Position(x, y) in this) ch else nonFilled
+        }.toMutableList()
+    }.toMutableList()
+}
+
 fun Position.up() = this.copy(y = y - 1)
 fun Position.down() = this.copy(y = y + 1)
 fun Position.left() = this.copy(x = x - 1)
