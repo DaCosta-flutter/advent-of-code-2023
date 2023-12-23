@@ -36,18 +36,18 @@ fun main() {
 
         data class Vertex(
             val pos: Position,
-            val connectedVertices: MutableSet<Position> = mutableSetOf()
+            val connectedVertices: MutableMap<Position, Int> = mutableMapOf()
         )
 
         val vertexByPos = mutableMapOf<Position, Vertex>()
         val visited = mutableSetOf<Position>()
-        fun buildGraphFrom(previousVertex: Vertex, pos: Position): Vertex? {
+        fun buildGraphFrom(pos: Position, previousVertex: Vertex, distanceToPreviousVertex: Int): Pair<Vertex, Int>? {
             visited.add(pos)
             if (pos == endPosition) {
                 val finalVertex = vertexByPos.computeIfAbsent(pos, { Vertex(pos) })
-                finalVertex.connectedVertices.add(previousVertex.pos)
+                finalVertex.connectedVertices.put(previousVertex.pos, distanceToPreviousVertex)
 
-                return finalVertex
+                return finalVertex to distanceToPreviousVertex
             }
             val toVisit = pos.allDirections()
                 .filter { it in trailByPosition }
@@ -59,30 +59,30 @@ fun main() {
                 return null
             }
             if (toVisit.size == 1) {
-                return buildGraphFrom(previousVertex, toVisit.first())
+                return buildGraphFrom(toVisit.first(), previousVertex, distanceToPreviousVertex + 1)
             } else {
                 val vertex = Vertex(pos)
                 vertexByPos[pos] = vertex
                 // Is a vertex
                 val connectedTo = toVisit
-                    .mapNotNull { buildGraphFrom(vertex, it) }
+                    .mapNotNull { buildGraphFrom(it, vertex, 1) }
                     .toSet()
 
-                (connectedTo + previousVertex).map { it.pos }
+                (connectedTo + (previousVertex to distanceToPreviousVertex))
                     .forEach {
-                        vertex.connectedVertices.add(it)
+                        vertex.connectedVertices.put(it.first.pos, it.second)
                     }
-                return vertex
+                return vertex to distanceToPreviousVertex
             }
         }
 
         val startVertex = Vertex(startPosition)
         vertexByPos[startPosition] = startVertex
-        buildGraphFrom(startVertex, startPosition)
+        buildGraphFrom(startPosition, startVertex, 0)
 
         vertexByPos.values.forEach { curVertex ->
-            curVertex.connectedVertices.forEach {
-                vertexByPos[it]!!.connectedVertices.add(curVertex.pos)
+            curVertex.connectedVertices.forEach { (vertexPos, distance) ->
+                vertexByPos[vertexPos]!!.connectedVertices[curVertex.pos] = distance
             }
         }
 
