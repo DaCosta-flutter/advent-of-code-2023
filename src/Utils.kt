@@ -21,11 +21,12 @@ fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteA
  */
 fun Any?.println() = println(this)
 
-fun check(expected: Any, actual: Any, checkName: String? = null) {
+fun <V> check(expected: V, actual: V, checkName: String? = null) {
     if (expected != actual) {
         throw Exception("Check ${checkName ?: ""} failed. Expected '$expected', but found '$actual'")
     }
 }
+
 
 data class Position(
     val x: Int,
@@ -33,6 +34,8 @@ data class Position(
 )
 
 fun List<List<Char>>.at(pos: Position) = this[pos.y][pos.x]
+fun List<String>.atPos(pos: Position) = this[pos.y][pos.x]
+
 fun Position.inside(list: List<List<Any>>) = x > 0 && y > 0 && y < list.size && x < list[y].size
 
 fun Set<Position>.to2dList(ch: Char = '#', nonFilled: Char = ' '): MutableList<MutableList<Char>> {
@@ -44,6 +47,14 @@ fun Set<Position>.to2dList(ch: Char = '#', nonFilled: Char = ' '): MutableList<M
         }.toMutableList()
     }.toMutableList()
 }
+
+
+fun List<String>.toCharsByPosition(): Map<Position, Char> =
+    this.indices.flatMap { y ->
+        this[y].indices.map { x ->
+            Position(x, y)
+        }
+    }.associateWith { this.atPos(it) }
 
 fun Position.up() = this.copy(y = y - 1)
 fun Position.down() = this.copy(y = y + 1)
