@@ -2,9 +2,9 @@ fun main() {
     val day = "24"
 
     data class Position3D(
-        val x: Int,
-        val y: Int,
-        val z: Int
+        val x: Long,
+        val y: Long,
+        val z: Long
     )
 
     data class PositionDouble(
@@ -13,9 +13,9 @@ fun main() {
     )
 
     data class Velocity(
-        val vx: Int,
-        val vy: Int,
-        val vz: Int,
+        val vx: Long,
+        val vy: Long,
+        val vz: Long,
     )
 
     data class Line(val initialPos: Position3D, val vel: Velocity)
@@ -23,9 +23,9 @@ fun main() {
     fun parseInput(input: List<String>) = input.map { line ->
         val (positionStr, velStr) = line.split("@").map { it.trim() }
         val (x, y, z) = positionStr.split(",")
-            .let { split -> split.map { it.trim() }.map { it.toInt() } }
+            .let { split -> split.map { it.trim() }.map { it.toLong() } }
         val (vx, vy, vz) = velStr.split(",")
-            .let { split -> split.map { it.trim() }.map { it.toInt() } }
+            .let { split -> split.map { it.trim() }.map { it.toLong() } }
         Line(Position3D(x, y, z), Velocity(vx, vy, vz))
     }
 
@@ -39,7 +39,7 @@ fun main() {
             val (vx2, vy2) = line2.vel
 
             val denCheck = (vx1 * vy2 - vx2 * vy1)
-            if (denCheck == 0) {
+            if (denCheck == 0L) {
                 return null
             }
             val t2 = (x2 * vy1 - x1 * vy1 - vx1 * y2 + vx1 * y1) / (vx1 * vy2 - vx2 * vy1).toDouble()
@@ -74,6 +74,45 @@ fun main() {
     }
 
     fun part2(input: List<String>): Long {
+        val lines = parseInput(input)
+
+        val lines0 = lines.random()
+        val lines1 = lines.random()
+        val lines2 = lines.random()
+        val (x0, y0, z0) = lines0.initialPos
+        val (vx0, vy0, vz0) = lines0.vel
+        val (x1, y1, z1) = lines1.initialPos
+        val (vx1, vy1, vz1) = lines1.vel
+        val (x2, y2, z2) = lines2.initialPos
+        val (vx2, vy2, vz2) = lines2.vel
+
+        val equationToSolve = """
+    $x0 + $vx0 * t0 = xs + vxs * t0
+    $x1 + $vx1 * t1 = xs + vxs * t1
+    $x2 + $vx2 * t2 = xs + vxs * t2
+    $y0 + $vy0 * t0 = ys + vys * t0
+    $y1 + $vy1 * t1 = ys + vys * t1
+    $y2 + $vy2 * t2 = ys + vys * t2
+    $z0 + $vz0 * t0 = zs + vzs * t0
+    $z1 + $vz1 * t1 = zs + vzs * t1
+    $z2 + $vz2 * t2 = zs + vzs * t2
+        """.trimIndent()
+            .replace("vxs", "r")
+            .replace("vys", "s")
+            .replace("vzs", "t")
+            .replace("xs", "x")
+            .replace("ys", "y")
+            .replace("zs", "z")
+            .replace("t0", "m")
+            .replace("t1", "n")
+            .replace("t2", "b")
+
+        println("Equations to solve:")
+        println(equationToSolve)
+        println()
+
+        println(lines.random())
+        println(lines.random())
         return input.size.toLong()
     }
 
@@ -90,4 +129,6 @@ fun main() {
     val input = readInput("Day${day}")
     part1(input, range).println()
     part2(input).println()
+
+    println(172543224455736L + 348373777394510L + 148125938782131L)
 }
