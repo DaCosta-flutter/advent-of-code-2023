@@ -226,18 +226,19 @@ fun main() {
 
     fun part2(input: List<String>): Long {
         val modulesByName = parseInput(input)
-
         fun detectCyclePeriodUntilModule(targetModule: String): Long {
             val subgraph = subgraphOf("broadcaster", targetModule, modulesByName).map { modulesByName[it]!! }.toSet()
             return detectCyclePeriod(targetModule, subgraph, modulesByName.clone()).toLong()
         }
 
-        val ph = detectCyclePeriodUntilModule("ph")
-        val tx = detectCyclePeriodUntilModule("tx")
-        val nz = detectCyclePeriodUntilModule("nz")
-        val dd = detectCyclePeriodUntilModule("dd")
+        val modulesWithLsAsOutput = modulesByName
+            .filterValues { module -> "ls" in module.outputModules }
+            .map { it.key }
 
-        return findLCM(ph, tx, nz, dd)
+        val periodsForRxInputs = modulesWithLsAsOutput
+            .map { detectCyclePeriodUntilModule(it) }
+
+        return findLCM(periodsForRxInputs)
     }
 
     fun printInputAsGraph(input: List<String>) {

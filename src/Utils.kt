@@ -28,7 +28,7 @@ fun <V> check(expected: V, actual: V, checkName: String? = null) {
     }
 }
 
-fun findLCM(vararg numbers: Long): Long {
+fun findLCM(numbers: List<Long>): Long {
     return if (numbers.size == 1) {
         numbers[0]
     } else {
