@@ -4,6 +4,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.readLines
 import kotlin.math.abs
 
+
 /**
  * Reads lines from the given input txt file.
  */
@@ -27,6 +28,19 @@ fun <V> check(expected: V, actual: V, checkName: String? = null) {
     }
 }
 
+fun findLCM(vararg numbers: Long): Long {
+    return if (numbers.size == 1) {
+        numbers[0]
+    } else {
+        numbers.fold(1) { acc, num -> findLCMTwoNums(acc, num) }
+    }
+}
+
+private fun findLCMTwoNums(a: Long, b: Long) = a / findGCD(a, b) * b
+
+fun findGCD(a: Long, b: Long): Long {
+    return if (b == 0L) a else findGCD(b, a % b)
+}
 
 data class Position(
     val x: Int,

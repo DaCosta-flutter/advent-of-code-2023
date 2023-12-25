@@ -28,6 +28,10 @@ fun main() {
         override fun hashCode(): Int {
             return name.hashCode()
         }
+
+        override fun toString(): String {
+            return "Module('$name')"
+        }
     }
 
     class FlipFlopModule(
@@ -43,9 +47,24 @@ fun main() {
             return outputModules.map { Pulse(!isOn, it, this.name) }
         }
 
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+            if (!super.equals(other)) return false
+
+            other as FlipFlopModule
+
+            return isOn == other.isOn
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + isOn.hashCode()
+            return result
+        }
     }
 
-    class Conjunction(
+    class ConjunctionModule(
         name: String,
         outputModules: List<String>,
         val isLastLowPulseByInputModuleStr: MutableMap<String, Boolean>,
@@ -56,9 +75,25 @@ fun main() {
             val isAllHigh = isLastLowPulseByInputModuleStr.all { !it.value }
             return outputModules.map { Pulse(isAllHigh, it, this.name) }
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+            if (!super.equals(other)) return false
+
+            other as ConjunctionModule
+
+            return isLastLowPulseByInputModuleStr == other.isLastLowPulseByInputModuleStr
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + isLastLowPulseByInputModuleStr.hashCode()
+            return result
+        }
     }
 
-    class Broadcast(
+    class BroadcastModule(
         outputModules: List<String>,
     ) : Module("broadcaster", outputModules) {
         override fun receivePulse(pulse: Pulse): List<Pulse> {
@@ -78,35 +113,69 @@ fun main() {
             if (currentPulse.isLow) lowPulses++ else highPulses++
             if (currentPulse.targetModule == "output") continue
 
-            //println("pulse: $currentPulse low: $lowPulses high: $highPulses")
             modulesByName[currentPulse.targetModule]?.receivePulse(currentPulse)?.forEach { toSend.add(it) }
         }
-        //println("final low: $lowPulses final high: $highPulses")
 
         return lowPulses to highPulses
     }
 
+    fun Map<String, Module>.clone(): Map<String, Module> = this.mapValues { (_, origModule) ->
+        when (origModule) {
+            is ConjunctionModule -> ConjunctionModule(
+                origModule.name,
+                origModule.outputModules,
+                origModule.isLastLowPulseByInputModuleStr.toMutableMap()
+            )
 
-    fun isRxPressedASingleTimeWithLow(modulesByName: Map<String, Module>): Boolean {
-        val toSend = LinkedList<Pulse>().apply {
-            add(Pulse(true, "broadcaster", "button"))
+            is FlipFlopModule -> FlipFlopModule(origModule.name, origModule.outputModules, origModule.isOn)
+            else -> origModule
+        }
+    }
+
+    fun subgraphOf(
+        curModule: String,
+        targetModuleName: String,
+        modulesByName: Map<String, Module>,
+        visited: Set<String> = emptySet()
+    ): Set<String> {
+        if (curModule == "rx") {
+            return emptySet()
+        }
+        val cur = modulesByName[curModule]!!
+        if (curModule == targetModuleName) {
+            return visited + curModule
         }
 
-        var numRxPressesWithLow = 0
+        if (cur.outputModules.isEmpty()) {
+            return emptySet()
+        }
 
-        while (toSend.isNotEmpty()) {
-            val currentPulse = toSend.pop()
-            if (currentPulse.targetModule == "output") continue
+        return cur.outputModules
+            .filter { it !in visited }
+            .map { subgraphOf(it, targetModuleName, modulesByName, visited + curModule) }
+            .flatten()
+            .toSet()
+    }
 
-            if (currentPulse.targetModule == "rx" && currentPulse.isLow) {
-                numRxPressesWithLow++
+    fun detectCyclePeriod(toCheckAllHighStr: String, modulesToMonitor: Set<Module>, modulesByName: Map<String, Module>): Int {
+        val modulesHashcodesPerIter = mutableMapOf<Map<String, Int>, Int>()
+        var iter = 0
+        val toCheckAllHigh = modulesByName[toCheckAllHighStr]!! as ConjunctionModule
+
+        while (true) {
+            val currentHashcodes = modulesByName.filter {
+                it.value in modulesToMonitor
+            }.map { it.value.name to it.value.hashCode() }.toMap()
+
+            if (currentHashcodes in modulesHashcodesPerIter && toCheckAllHigh.isLastLowPulseByInputModuleStr.all { !it.value }) {
+                return iter - modulesHashcodesPerIter[currentHashcodes]!!
             }
-            //println("pulse: $currentPulse low: $lowPulses high: $highPulses")
-            modulesByName[currentPulse.targetModule]?.receivePulse(currentPulse)?.forEach { toSend.add(it) }
+            modulesHashcodesPerIter[currentHashcodes] = iter
+            pushButton(modulesByName)
+            iter++
         }
-        //println("final low: $lowPulses final high: $highPulses")
 
-        return numRxPressesWithLow == 1
+        throw IllegalArgumentException("reaching here should not happen")
     }
 
     fun parseInput(input: List<String>): Map<String, Module> {
@@ -115,7 +184,7 @@ fun main() {
                 when {
                     line.startsWith("broadcaster") -> {
                         val outputs = line.split(" -> ")[1].split(",").map { it.trim() }
-                        Broadcast(outputs)
+                        BroadcastModule(outputs)
                     }
 
                     line[0] == '%' -> {
@@ -127,14 +196,14 @@ fun main() {
                     line[0] == '&' -> {
                         val name = line.split(" -> ")[0].removePrefix("&").trim()
                         val outputs = line.split(" -> ")[1].split(",").map { it.trim() }
-                        Conjunction(name, outputs, mutableMapOf())
+                        ConjunctionModule(name, outputs, mutableMapOf())
                     }
 
                     else -> throw IllegalArgumentException("unexpected entry $line")
                 }
             }.associateBy { it.name }
 
-        modulesByName.filter { it.value is Conjunction }.map { it.value as Conjunction }
+        modulesByName.filter { it.value is ConjunctionModule }.map { it.value as ConjunctionModule }
             .forEach { conjunctionModule ->
                 modulesByName.values.filter { it.outputModules.contains(conjunctionModule.name) }.map { it.name }.forEach { inputModule ->
                     conjunctionModule.isLastLowPulseByInputModuleStr.put(inputModule, true)
@@ -158,25 +227,48 @@ fun main() {
     fun part2(input: List<String>): Long {
         val modulesByName = parseInput(input)
 
-        var iter = 0L
-        do {
-            iter++
-            if (iter % 1_000_000L == 0L) {
-                println("iter $iter")
+        fun detectCyclePeriodUntilModule(targetModule: String): Long {
+            val subgraph = subgraphOf("broadcaster", targetModule, modulesByName).map { modulesByName[it]!! }.toSet()
+            return detectCyclePeriod(targetModule, subgraph, modulesByName.clone()).toLong()
+        }
+
+        val ph = detectCyclePeriodUntilModule("ph")
+        val tx = detectCyclePeriodUntilModule("tx")
+        val nz = detectCyclePeriodUntilModule("nz")
+        val dd = detectCyclePeriodUntilModule("dd")
+
+        return findLCM(ph, tx, nz, dd)
+    }
+
+    fun printInputAsGraph(input: List<String>) {
+        val nodesWithTypeByNodeName = mutableMapOf<String, String>()
+
+        input.flatMap { line ->
+            val (fromNodeStr, toNodesStr) = line.split(" -> ")
+            val fromNode = if (fromNodeStr == "broadcaster") fromNodeStr else fromNodeStr.substring(1)
+            if ("%" in fromNodeStr) {
+                nodesWithTypeByNodeName[fromNode] = "INV_$fromNode"
+            } else if ("&" in fromNodeStr) {
+                nodesWithTypeByNodeName[fromNode] = "CONJ_$fromNode"
+            } else {
+                nodesWithTypeByNodeName[fromNode] = fromNodeStr
             }
-        } while (!isRxPressedASingleTimeWithLow(modulesByName))
-        return iter
+            toNodesStr.split(", ")
+                .map { fromNode to it }
+        }.onEach { (from, to) ->
+            println("${nodesWithTypeByNodeName[from]} -- ${nodesWithTypeByNodeName.getOrDefault(to, to)}")
+        }
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day${day}_test")
+    val input = readInput("Day${day}")
 
     // Check test inputs
     check(11687500L, part1(testInput), "Part 1")
     //check(5L, part2(testInput), "Part 2")
 
 
-    val input = readInput("Day${day}")
     part1(input).println()
     part2(input).println()
 }
