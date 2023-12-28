@@ -1,3 +1,6 @@
+import utils.println
+import utils.readInput
+
 typealias Card = Char
 
 fun main() {

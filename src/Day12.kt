@@ -1,3 +1,6 @@
+import utils.println
+import utils.readInput
+
 enum class SpringStatus { DAMAGED, OPERATIONAL, UNKNOWN }
 
 fun main() {
@@ -120,8 +123,8 @@ fun main() {
     val testInput = readInput("Day${day}_test")
 
 // Check test inputs
-    check(21L, part1(testInput), "Part 1")
-    check(525152L, part2(testInput), "Part 2")
+    utils.check(21L, part1(testInput), "Part 1")
+    utils.check(525152L, part2(testInput), "Part 2")
 
     val input = readInput("Day${day}")
     part1(input).println()

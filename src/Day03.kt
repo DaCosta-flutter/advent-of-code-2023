@@ -1,35 +1,27 @@
+import utils.geometry.Grid
+import utils.geometry.Position
+import utils.geometry.neighbours
+import utils.geometry.toGrid
+import utils.println
+import utils.readInput
+
 fun main() {
     val day = "03"
 
-    data class Point(
-        val x: Int,
-        val y: Int
-    )
+    fun Position.next() = this.copy(x = x + 1)
 
-    fun Point.adjs(): Set<Point> = (-1..1)
-        .flatMap { xInc -> (-1..1).map { yInc -> Point(this.x + xInc, this.y + yInc) } }
-        .filter { it.x >= 0 && it.y >= 0 }
-        .filterNot { it == this }
-        .toSet()
-
-    fun Point.isValidPos(input: List<String>) = this.y < input.size && this.x < input[this.y].length && this.y >= 0 && this.x >= 0
-
-    fun Point.next() = this.copy(x = this.x + 1)
-
-    fun List<String>.at(p: Point) = this[p.y][p.x]
-
-    fun getNumber(startPosition: Point, input: List<String>): Int {
+    fun getNumber(startPosition: Position, grid: Grid): Int {
         var isValid = false
         var currentVal = 0
         var numDigits = 0
-        var currentPoint = startPosition
+        var currentPosition = startPosition
 
-        while (currentPoint.isValidPos(input) && input.at(currentPoint).isDigit()) {
-            currentVal = input.at(currentPoint).digitToInt() + currentVal * 10
-            isValid = isValid || currentPoint.adjs()
-                .filter { it.isValidPos(input) }
-                .any { adjPoint -> input.at(adjPoint).let { !it.isDigit() && it != '.' } }
-            currentPoint = currentPoint.next()
+        while (currentPosition in grid && grid[currentPosition]!!.isDigit()) {
+            currentVal = grid[currentPosition]!!.digitToInt() + currentVal * 10
+            isValid = isValid || currentPosition.neighbours()
+                .filter { it in grid }
+                .any { adjPosition -> grid[adjPosition]!!.let { !it.isDigit() && it != '.' } }
+            currentPosition = currentPosition.next()
             numDigits++
         }
 
@@ -37,12 +29,13 @@ fun main() {
     }
 
     fun parseNumbers(input: List<String>): List<Int> {
-        var currentPos = Point(0, 0)
+        var currentPos = Position(0, 0)
         val listOfNums = mutableListOf<Int>()
+        val grid = input.toGrid()
 
         input.forEach {
-            while (currentPos.isValidPos(input)) {
-                val num = getNumber(currentPos, input)
+            while (currentPos in grid) {
+                val num = getNumber(currentPos, grid)
                 if (num != 0) {
                     listOfNums.add(num)
                 }
@@ -50,7 +43,7 @@ fun main() {
                     currentPos = currentPos.next()
                 }
             }
-            currentPos = currentPos.copy(0, currentPos.y + 1)
+            currentPos = currentPos.copy(x = 0, y = currentPos.y + 1)
         }
         return listOfNums
     }
@@ -60,31 +53,23 @@ fun main() {
             .sum()
     }
 
-    fun findGears(input: List<String>): List<Point> {
-        return input.indices.flatMap { y ->
-            input[y].indices.map { x ->
-                Point(x, y)
-            }
-        }
-            .filter { input.at(it) == '*' }
-    }
+    fun findGears(grid: Grid) = grid.filter { it.value == '*' }.map { it.key }
 
-    fun findFromMiddleNumber(startPos: Point, input: List<String>): Int {
+    fun findFromMiddleNumber(startPos: Position, grid: Grid): Int {
         var currentPos = startPos
         var prevPos = currentPos.copy(x = currentPos.x - 1)
-        while (prevPos.isValidPos(input) && input.at(prevPos).isDigit()) {
+        while (grid[prevPos]?.isDigit() == true) {
             currentPos = prevPos
             prevPos = currentPos.copy(x = currentPos.x - 1)
         }
 
-        return getNumber(currentPos, input)
+        return getNumber(currentPos, grid)
     }
 
-    fun findGearMultiplier(gearPoint: Point, input: List<String>): Int {
-        val toMultiply = gearPoint.adjs()
-            .filter { it.isValidPos(input) }
-            .filter { input.at(it).isDigit() }
-            .map { findFromMiddleNumber(it, input) }
+    fun findGearMultiplier(gearPosition: Position, grid: Grid): Int {
+        val toMultiply = gearPosition.neighbours()
+            .filter { grid[it]?.isDigit() ?: false }
+            .map { findFromMiddleNumber(it, grid) }
             .toSet()
 
         return if (toMultiply.size <= 1) 0 else toMultiply.first() * toMultiply.last()
@@ -92,9 +77,8 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return findGears(input)
-            .map { findGearMultiplier(it, input) }
-            .sum()
+        val grid = input.toGrid()
+        return findGears(grid).sumOf { findGearMultiplier(it, grid) }
     }
 
     // test if implementation meets criteria from the description, like:

@@ -1,3 +1,6 @@
+import utils.println
+import utils.readInput
+
 fun main() {
     val day = "24"
 
@@ -121,8 +124,8 @@ fun main() {
 
     // Check test inputs
     val testRange = 7.0..27.0
-    check(2L, part1(testInput, testRange), "Part 1")
-    check(testInput.size.toLong(), part2(testInput), "Part 2")
+    utils.check(2L, part1(testInput, testRange), "Part 1")
+    utils.check(testInput.size.toLong(), part2(testInput), "Part 2")
 
     val range = 200_000_000_000_000.0..400_000_000_000_000.0
 

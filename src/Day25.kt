@@ -1,3 +1,5 @@
+import utils.println
+import utils.readInput
 import java.util.LinkedList
 
 fun main() {
@@ -108,7 +110,7 @@ fun main() {
 
     // Check test inputs
     //check(54, part1(testInput), "Part 1")
-    check(testInput.size.toLong(), part2(testInput), "Part 2")
+    utils.check(testInput.size.toLong(), part2(testInput), "Part 2")
 
     val input = readInput("Day${day}")
     part1(input).println()

@@ -1,23 +1,19 @@
+import utils.geometry.Position
+import utils.geometry.toGrid
+import utils.println
+import utils.readInput
+
 typealias PositionsByX = Map<Int, Set<Position>>
 
 fun main() {
     val day = "14"
 
     fun parseInput(input: List<String>): Pair<PositionsByX, PositionsByX> {
-        val fixedRocks = mutableSetOf<Position>()
-        val movableRocks = mutableSetOf<Position>()
+        val grid = input.toGrid()
+        val fixedRocks = grid.filter { it.value == '#' }.map { it.key }.groupBy { it.x }.mapValues { it.value.toSet() }
+        val movableRocks = grid.filter { it.value == 'O' }.map { it.key }.groupBy { it.x }.mapValues { it.value.toSet() }
 
-        input.indices.forEach { y ->
-            input[y].indices.forEach { x ->
-                if (input[y][x] == 'O')
-                    movableRocks.add(Position(x, y))
-                else if (input[y][x] == '#')
-                    fixedRocks.add(Position(x, y))
-            }
-        }
-        return Pair(
-            fixedRocks.groupBy { it.x }.mapValues { it.value.toSet() },
-            movableRocks.groupBy { it.x }.mapValues { it.value.toSet() })
+        return fixedRocks to movableRocks
     }
 
     val newMovableCache = mutableMapOf<Pair<PositionsByX, PositionsByX>, Pair<PositionsByX, String>>()
@@ -107,7 +103,7 @@ fun main() {
         val fixedRocksSouth = fixedRocksWest.rotateClockwise(northSouthLength)
         val fixedRocksEast = fixedRocksSouth.rotateClockwise(eastWestLength)
 //        (0 until (3 + ((1_000_000_000-3) %7))).asSequence().forEach { iter ->
-        (0 until (151 + ((1_000_000_000 - 151) % (168-151)))).asSequence().forEach { iter ->
+        (0 until (151 + ((1_000_000_000 - 151) % (168 - 151)))).asSequence().forEach { iter ->
 
             //(0 until (168 + 1) + 100_000_000 % (168 - 151)).asSequence().forEach { iter ->
             // (0 until 1_000_000_000 % (168 - 151)).asSequence().forEach { iter ->

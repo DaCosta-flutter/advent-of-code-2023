@@ -1,3 +1,5 @@
+import utils.println
+import utils.readInput
 import java.util.LinkedList
 
 typealias Id = Int
@@ -103,8 +105,8 @@ fun main() {
     val testInput = readInput("Day${day}_test")
 
     // Check test inputs
-    check(5L, part1(testInput), "Part 1")
-    check(7L, part2(testInput), "Part 2")
+    utils.check(5L, part1(testInput), "Part 1")
+    utils.check(7L, part2(testInput), "Part 2")
 
     val input = readInput("Day${day}")
     part1(input).println()

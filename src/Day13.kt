@@ -1,3 +1,5 @@
+import utils.println
+import utils.readInput
 import kotlin.math.min
 
 typealias Matrix = List<List<Boolean>>
@@ -130,7 +132,7 @@ fun main() {
     val testInput = readInput("Day${day}_test")
 
     // Check test inputs
-    check(405L, part1(testInput), "Part 1")
+    utils.check(405L, part1(testInput), "Part 1")
     //check(400L, part2(testInput), "Part 2")
 
     val input = readInput("Day${day}")

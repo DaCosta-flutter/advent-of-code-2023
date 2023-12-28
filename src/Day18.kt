@@ -1,64 +1,28 @@
-import java.math.BigDecimal
-import java.math.BigInteger
-import kotlin.math.abs
-
-enum class Direction2D {
-    UP, DOWN, RIGHT, LEFT
-}
+import utils.geometry.Direction2D
+import utils.geometry.Grid
+import utils.geometry.Position
+import utils.geometry.cartesianDistance
+import utils.geometry.moveTo
+import utils.geometry.numInteriorPoints
+import utils.println
+import utils.readInput
 
 typealias Instruction = Pair<Direction2D, Int>
 
 fun main() {
     val day = "18"
 
-    fun Position.move(num: Int, d: Direction2D): List<Position> {
-        val positions = mutableListOf<Position>()
-        var currentPos = this
-        repeat(num) {
-            currentPos = when (d) {
-                Direction2D.UP -> currentPos.up()
-                Direction2D.DOWN -> currentPos.down()
-                Direction2D.RIGHT -> currentPos.right()
-                Direction2D.LEFT -> currentPos.left()
-            }
-            positions.add(currentPos)
-        }
-        return positions
-    }
-
-    fun Position.nextPosition(num: Int, d: Direction2D) = when (d) {
-        Direction2D.UP -> this.copy(y = y - num)
-        Direction2D.DOWN -> this.copy(y = y + num)
-        Direction2D.RIGHT -> this.copy(x = x + num)
-        Direction2D.LEFT -> this.copy(x = x - num)
-    }
-
-    fun areaOfPolygon(vertices: List<Position>): Long {
-        var n = vertices.size - 1
-        var area = BigInteger.ZERO
-
-        for (i in 0 until n) {
-            area = area.add(
-                vertices[n].x.toBigInteger().add(vertices[i].x.toBigInteger())
-                    .multiply(vertices[n].y.toBigInteger().subtract(vertices[i].y.toBigInteger()))
-            );
-            //area += (vertices[n].x + vertices[i].x) * (vertices[n].y - vertices[i].y)
-            n = i
-        }
-
-        return area.abs().divide(2.toBigInteger()).toLong()
-    }
-
     fun calcArea(instructions: List<Instruction>): Long {
         val vertices = mutableListOf<Position>().apply { add(Position(0, 0)) }
         var numEdges = 0L
         instructions.forEach { (direction, numMoves) ->
-            val newVertex = vertices.last().nextPosition(numMoves, direction)
+            val newVertex = vertices.last().moveTo(numMoves, direction)
             numEdges += newVertex.cartesianDistance(vertices.last())
             vertices.add(newVertex)
         }
 
-        val interiorPoints = areaOfPolygon(vertices) - numEdges / 2 + 1
+        val verticesOfPolygon: Grid = vertices.associateWith { ' ' }
+        val interiorPoints = verticesOfPolygon.numInteriorPoints(numEdges)
         return numEdges + interiorPoints
     }
 
@@ -100,8 +64,8 @@ fun main() {
     val testInput = readInput("Day${day}_test")
 
     // Check test inputs
-    check(62L, part1(testInput), "Part 1")
-    check(952408144115L, part2(testInput), "Part 2")
+    utils.check(62L, part1(testInput), "Part 1")
+    utils.check(952408144115L, part2(testInput), "Part 2")
 
     val input = readInput("Day${day}")
     part1(input).println()

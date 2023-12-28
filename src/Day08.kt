@@ -1,4 +1,6 @@
-import java.math.BigInteger
+import utils.findLCM
+import utils.println
+import utils.readInput
 
 enum class Direction { LEFT, RIGHT }
 
@@ -64,19 +66,13 @@ fun main() {
         return startNode.numStepsToNodeEndingWith("ZZZ", network)
     }
 
-    fun lowestCommonMultiple(list: List<Long>): Long {
-        fun lcmTwoNumbers(a: Long, b: Long): Long = a * b / BigInteger.valueOf(a).gcd(BigInteger.valueOf(b)).toLong()
-
-        return list.foldRight(list[0]) { acc, num -> lcmTwoNumbers(acc, num) }
-    }
-
     fun part2(input: List<String>): Long {
         val network = parseInput(input)
 
         return network.nodes.values
             .filter { it.name.endsWith("A") }
             .map { it.numStepsToNodeEndingWith("Z", network) }
-            .let { lowestCommonMultiple(it) }
+            .let { findLCM(it) }
     }
 
     // test if implementation meets criteria from the description, like:

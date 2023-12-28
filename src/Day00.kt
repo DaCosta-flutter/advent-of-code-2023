@@ -1,3 +1,6 @@
+import utils.println
+import utils.readInput
+
 fun main() {
     val day = "CHANGE_ME"
 
@@ -13,8 +16,8 @@ fun main() {
     val testInput = readInput("Day${day}_test")
 
     // Check test inputs
-    check(testInput.size.toLong(), part1(testInput), "Part 1")
-    check(testInput.size.toLong(), part2(testInput), "Part 2")
+    utils.check(testInput.size.toLong(), part1(testInput), "Part 1")
+    utils.check(testInput.size.toLong(), part2(testInput), "Part 2")
 
     val input = readInput("Day${day}")
     part1(input).println()

@@ -1,3 +1,6 @@
+import utils.println
+import utils.readInput
+
 fun main() {
     val day = "09"
 
@@ -43,8 +46,8 @@ fun main() {
     val testInput = readInput("Day${day}_test")
 
     // Check test inputs
-    check(114L, part1(testInput), "Part 1")
-    check(2L, part2(testInput), "Part 2")
+    utils.check(114L, part1(testInput), "Part 1")
+    utils.check(2L, part2(testInput), "Part 2")
 
     val input = readInput("Day${day}")
     part1(input).println()

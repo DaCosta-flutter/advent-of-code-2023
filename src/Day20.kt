@@ -1,3 +1,6 @@
+import utils.findLCM
+import utils.println
+import utils.readInput
 import java.util.LinkedList
 
 fun main() {
@@ -266,7 +269,7 @@ fun main() {
     val input = readInput("Day${day}")
 
     // Check test inputs
-    check(11687500L, part1(testInput), "Part 1")
+    utils.check(11687500L, part1(testInput), "Part 1")
     //check(5L, part2(testInput), "Part 2")
 
 

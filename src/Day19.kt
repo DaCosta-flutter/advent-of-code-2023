@@ -1,3 +1,5 @@
+import utils.println
+import utils.readInput
 import java.math.BigInteger
 
 typealias WorkInstruction = String
@@ -150,8 +152,8 @@ fun main() {
 
     val testInput = readInput("Day${day}_test")
 
-    check(19114L, part1(testInput), "Part 1")
-    check(BigInteger.valueOf(167409079868000L), part2(testInput), "Part 2")
+    utils.check(19114L, part1(testInput), "Part 1")
+    utils.check(BigInteger.valueOf(167409079868000L), part2(testInput), "Part 2")
 
     val input = readInput("Day${day}")
     part1(input).println()

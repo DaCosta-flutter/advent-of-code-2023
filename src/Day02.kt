@@ -1,3 +1,6 @@
+import utils.println
+import utils.readInput
+
 typealias CubeColor = String
 typealias CubesInSet = Map<CubeColor, Int>
 

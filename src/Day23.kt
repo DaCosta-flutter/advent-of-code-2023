@@ -1,9 +1,20 @@
+import utils.geometry.Position
+import utils.geometry.cartesianNeighbours
+import utils.geometry.atPos
+import utils.geometry.down
+import utils.geometry.left
+import utils.println
+import utils.readInput
+import utils.geometry.right
+import utils.geometry.toGrid
+import utils.geometry.up
+
 fun main() {
     val day = "23"
 
 
     fun part1(input: List<String>): Long {
-        val trailByPosition = input.toCharsByPosition()
+        val trailByPosition = input.toGrid()
         val startPosition = input[0].indices.find { xPos -> input[0][xPos] != '#' }.let { Position(it!!, 0) }
         val endPosition = input.last().indices.find { xPos -> input.last()[xPos] != '#' }.let { Position(it!!, input.lastIndex) }
 
@@ -12,7 +23,7 @@ fun main() {
                 return 0
             }
             val toVisit = when (input.atPos(curPos)) {
-                '.' -> curPos.allDirections().filter { it in trailByPosition && trailByPosition[it] != '#' }
+                '.' -> curPos.cartesianNeighbours().filter { it in trailByPosition && trailByPosition[it] != '#' }
                 '>' -> setOf(curPos.right())
                 '<' -> setOf(curPos.left())
                 '^' -> setOf(curPos.up())
@@ -30,7 +41,7 @@ fun main() {
     }
 
     fun part2(input: List<String>): Long {
-        val trailByPosition = input.toCharsByPosition()
+        val trailByPosition = input.toGrid()
         val startPosition = input[0].indices.find { xPos -> input[0][xPos] != '#' }.let { Position(it!!, 0) }
         val endPosition = input.last().indices.find { xPos -> input.last()[xPos] != '#' }.let { Position(it!!, input.lastIndex) }
 
@@ -56,14 +67,14 @@ fun main() {
 
                 return finalVertex to distanceToPreviousVertex
             }
-            val toVisit = pos.allDirections()
+            val toVisit = pos.cartesianNeighbours()
                 .filter { it in trailByPosition }
                 .filter { trailByPosition[it] != '#' }
                 .filter { it !in visited }
                 .toSet()
 
             if (toVisit.isEmpty()) {
-                pos.allDirections().filter { it in vertexByPos }
+                pos.cartesianNeighbours().filter { it in vertexByPos }
                     .filter { it != previousVertex.pos }
                     .map { vertexByPos[it]!! }
                     .map { vertex ->
@@ -139,8 +150,8 @@ fun main() {
     val testInput = readInput("Day${day}_test")
 
 // Check test inputs
-    check(94L, part1(testInput), "Part 1")
-    check(154, part2(testInput), "Part 2")
+    utils.check(94L, part1(testInput), "Part 1")
+    utils.check(154, part2(testInput), "Part 2")
 
     val input = readInput("Day${day}")
     part1(input).println()
