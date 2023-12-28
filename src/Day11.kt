@@ -1,4 +1,4 @@
-import utils.geometry.Position
+import utils.geometry.Point
 import utils.geometry.cartesianDistance
 import utils.println
 import utils.readInput
@@ -7,7 +7,7 @@ fun main() {
     val day = "11"
 
     data class Universe(
-        val galaxies: Set<Position>
+        val galaxies: Set<Point>
     )
 
     fun Universe.sumDistanceBetweenAllGalaxies(): Long {
@@ -23,10 +23,10 @@ fun main() {
 
     fun List<String>.col(colIdx: Int) = this.map { it[colIdx] }
 
-    fun Position.adjustEmptiness(emptyY: Set<Int>, emptyX: Set<Int>, emptinessFactor: Int): Position {
+    fun Point.adjustEmptiness(emptyY: Set<Int>, emptyX: Set<Int>, emptinessFactor: Int): Point {
         val yAdjustment = emptyY.count { it < y }.let { if (it > 0) (emptinessFactor - 1) * it else 0 }
         val xAdjustment = emptyX.count { it < x }.let { if (it > 0) (emptinessFactor - 1) * it else 0 }
-        return Position(x + xAdjustment, y + yAdjustment)
+        return Point(x + xAdjustment, y + yAdjustment)
     }
 
     fun parseInput(input: List<String>, emptinessFactor: Int): Universe {
@@ -35,7 +35,7 @@ fun main() {
 
         val galaxies = input.indices
             .flatMap { y ->
-                input[y].indices.filter { x -> input[y][x] == '#' }.map { x -> Position(x, y) }
+                input[y].indices.filter { x -> input[y][x] == '#' }.map { x -> Point(x, y) }
             }
             .map { it.adjustEmptiness(emptyY, emptyX, emptinessFactor) }
             .toSet()

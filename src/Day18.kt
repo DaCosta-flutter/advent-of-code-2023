@@ -1,6 +1,6 @@
 import utils.geometry.Direction2D
 import utils.geometry.Grid
-import utils.geometry.Position
+import utils.geometry.Point
 import utils.geometry.cartesianDistance
 import utils.geometry.moveTo
 import utils.geometry.numInteriorPoints
@@ -13,7 +13,7 @@ fun main() {
     val day = "18"
 
     fun calcArea(instructions: List<Instruction>): Long {
-        val vertices = mutableListOf<Position>().apply { add(Position(0, 0)) }
+        val vertices = mutableListOf<Point>().apply { add(Point(0, 0)) }
         var numEdges = 0L
         instructions.forEach { (direction, numMoves) ->
             val newVertex = vertices.last().moveTo(numMoves, direction)

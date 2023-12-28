@@ -1,4 +1,4 @@
-import utils.geometry.Position
+import utils.geometry.Point
 import utils.geometry.cartesianNeighbours
 import utils.geometry.atPos
 import utils.geometry.down
@@ -15,11 +15,11 @@ fun main() {
 
     fun part1(input: List<String>): Long {
         val trailByPosition = input.toGrid()
-        val startPosition = input[0].indices.find { xPos -> input[0][xPos] != '#' }.let { Position(it!!, 0) }
-        val endPosition = input.last().indices.find { xPos -> input.last()[xPos] != '#' }.let { Position(it!!, input.lastIndex) }
+        val startPoint = input[0].indices.find { xPos -> input[0][xPos] != '#' }.let { Point(it!!, 0) }
+        val endPoint = input.last().indices.find { xPos -> input.last()[xPos] != '#' }.let { Point(it!!, input.lastIndex) }
 
-        fun longestDistance(curPos: Position, visited: Set<Position> = emptySet()): Int {
-            if (curPos == endPosition) {
+        fun longestDistance(curPos: Point, visited: Set<Point> = emptySet()): Int {
+            if (curPos == endPoint) {
                 return 0
             }
             val toVisit = when (input.atPos(curPos)) {
@@ -37,33 +37,33 @@ fun main() {
             }
         }
 
-        return longestDistance(startPosition).toLong()
+        return longestDistance(startPoint).toLong()
     }
 
     fun part2(input: List<String>): Long {
         val trailByPosition = input.toGrid()
-        val startPosition = input[0].indices.find { xPos -> input[0][xPos] != '#' }.let { Position(it!!, 0) }
-        val endPosition = input.last().indices.find { xPos -> input.last()[xPos] != '#' }.let { Position(it!!, input.lastIndex) }
+        val startPoint = input[0].indices.find { xPos -> input[0][xPos] != '#' }.let { Point(it!!, 0) }
+        val endPoint = input.last().indices.find { xPos -> input.last()[xPos] != '#' }.let { Point(it!!, input.lastIndex) }
 
         data class Vertex(
-            val pos: Position,
-            val connectedVertices: MutableMap<Position, Int> = mutableMapOf(),
-            val positionsBetweenVertices: MutableMap<Position, Set<Position>> = mutableMapOf()
+            val pos: Point,
+            val connectedVertices: MutableMap<Point, Int> = mutableMapOf(),
+            val positionsBetweenVertices: MutableMap<Point, Set<Point>> = mutableMapOf()
         )
 
-        val vertexByPos = mutableMapOf<Position, Vertex>()
-        val visited = mutableSetOf<Position>()
+        val vertexByPos = mutableMapOf<Point, Vertex>()
+        val visited = mutableSetOf<Point>()
         fun buildGraphFrom(
-            pos: Position,
+            pos: Point,
             previousVertex: Vertex,
             distanceToPreviousVertex: Int,
-            positionsBetweenPreviousVertex: Set<Position>
+            positionsBetweenPreviousVertices: Set<Point>
         ): Pair<Vertex, Int>? {
             visited.add(pos)
-            if (pos == endPosition) {
+            if (pos == endPoint) {
                 val finalVertex = vertexByPos.computeIfAbsent(pos, { Vertex(pos) })
                 finalVertex.connectedVertices[previousVertex.pos] = distanceToPreviousVertex
-                finalVertex.positionsBetweenVertices[previousVertex.pos] = positionsBetweenPreviousVertex
+                finalVertex.positionsBetweenVertices[previousVertex.pos] = positionsBetweenPreviousVertices
 
                 return finalVertex to distanceToPreviousVertex
             }
@@ -79,12 +79,12 @@ fun main() {
                     .map { vertexByPos[it]!! }
                     .map { vertex ->
                         vertex.connectedVertices[previousVertex.pos] = distanceToPreviousVertex + 1
-                        vertex.positionsBetweenVertices[previousVertex.pos] = positionsBetweenPreviousVertex + vertex.pos
+                        vertex.positionsBetweenVertices[previousVertex.pos] = positionsBetweenPreviousVertices + vertex.pos
                     }
                 return null
             }
             if (toVisit.size == 1) {
-                return buildGraphFrom(toVisit.first(), previousVertex, distanceToPreviousVertex + 1, positionsBetweenPreviousVertex + pos)
+                return buildGraphFrom(toVisit.first(), previousVertex, distanceToPreviousVertex + 1, positionsBetweenPreviousVertices + pos)
             } else {
                 val vertex = Vertex(pos)
                 vertexByPos[pos] = vertex
@@ -94,7 +94,7 @@ fun main() {
                     .toSet()
 
                 vertex.connectedVertices[previousVertex.pos] = distanceToPreviousVertex
-                vertex.positionsBetweenVertices[previousVertex.pos] = positionsBetweenPreviousVertex
+                vertex.positionsBetweenVertices[previousVertex.pos] = positionsBetweenPreviousVertices
 
                 /*connectedTo.forEach { (vertex, distance) ->
                     vertex.connectedVertices[vertex.pos] = distance
@@ -103,9 +103,9 @@ fun main() {
             }
         }
 
-        val startVertex = Vertex(startPosition)
-        vertexByPos[startPosition] = startVertex
-        buildGraphFrom(startPosition, startVertex, 0, emptySet())
+        val startVertex = Vertex(startPoint)
+        vertexByPos[startPoint] = startVertex
+        buildGraphFrom(startPoint, startVertex, 0, emptySet())
 
         // Adust pairwise connections
         vertexByPos.values.forEach { curVertex ->
@@ -119,7 +119,7 @@ fun main() {
         fun printVertices() {
             input.indices.map { y ->
                 input[y].indices.map { x ->
-                    val currentPos = Position(x, y)
+                    val currentPos = Point(x, y)
                     if (currentPos in vertexByPos) print("*")
                     else if (currentPos in connectingVertices) print(".")
                     else if (input.atPos(currentPos) == '#') print("#")
@@ -130,8 +130,8 @@ fun main() {
         }
         printVertices()
 
-        fun longestDistanceWithoutSlopes(curPos: Position, visited: Set<Position> = emptySet(), distanceFromLastVertex: Int = 0): Int? {
-            if (curPos == endPosition) {
+        fun longestDistanceWithoutSlopes(curPos: Point, visited: Set<Point> = emptySet(), distanceFromLastVertex: Int = 0): Int? {
+            if (curPos == endPoint) {
                 return distanceFromLastVertex
             }
             val toVisit = vertexByPos[curPos]!!.connectedVertices
@@ -143,7 +143,7 @@ fun main() {
                 ?.let { it + distanceFromLastVertex }
         }
 
-        return longestDistanceWithoutSlopes(startPosition)!!.toLong()
+        return longestDistanceWithoutSlopes(startPoint)!!.toLong()
     }
 
 // test if implementation meets criteria from the description, like:

@@ -1,9 +1,9 @@
-import utils.geometry.Position
+import utils.geometry.Point
 import utils.geometry.toGrid
 import utils.println
 import utils.readInput
 
-typealias PositionsByX = Map<Int, Set<Position>>
+typealias PositionsByX = Map<Int, Set<Point>>
 
 fun main() {
     val day = "14"
@@ -29,24 +29,24 @@ fun main() {
             return it.first
         }
 
-        val newMovableByX = mutableMapOf<Int, Set<Position>>()
+        val newMovableByX = mutableMapOf<Int, Set<Point>>()
 
         movableByX
             .forEach { (x, movablePositions) ->
-                val newMovablePositions = mutableSetOf<Position>()
+                val newMovablePoints = mutableSetOf<Point>()
                 val availableFixedByY = fixedRocksByX.getOrDefault(x, emptyList())
 
                 movablePositions.sortedBy { it.y }
                     .forEach { movablePosition ->
-                        val newPosition = (newMovablePositions + availableFixedByY)
+                        val newPoint = (newMovablePoints + availableFixedByY)
                             .filter { it.x == movablePosition.x }
                             .filter { it.y < movablePosition.y }
                             .map { it.copy(y = it.y + 1) }
-                            .maxByOrNull { it.y } ?: Position(movablePosition.x, 0)
-                        newMovablePositions.add(newPosition)
+                            .maxByOrNull { it.y } ?: Point(movablePosition.x, 0)
+                        newMovablePoints.add(newPoint)
                     }
 
-                newMovableByX[x] = newMovablePositions
+                newMovableByX[x] = newMovablePoints
             }
 
         return newMovableByX.also {
@@ -54,10 +54,10 @@ fun main() {
         }
     }
 
-    fun PositionsByX.rotateClockwise(newTotalLength: Position): PositionsByX {
+    fun PositionsByX.rotateClockwise(newTotalLength: Point): PositionsByX {
         return this.values.flatMap { listOfPos ->
             listOfPos.map {
-                Position(newTotalLength.x - 1 - it.y, it.x)
+                Point(newTotalLength.x - 1 - it.y, it.x)
             }
         }.groupBy { it.x }.mapValues { it.value.toSet() }
     }
@@ -71,15 +71,15 @@ fun main() {
     }
 
     val debug = false
-    fun printPositions(positions: PositionsByX, fixed: PositionsByX, length: Position, message: String) {
+    fun printPositions(positions: PositionsByX, fixed: PositionsByX, length: Point, message: String) {
         if (!debug) return
         println(message)
         println()
         (0 until length.y).forEach { y ->
             (0 until length.x).forEach { x ->
-                if (Position(x, y) in positions.getOrDefault(x, emptyList()))
+                if (Point(x, y) in positions.getOrDefault(x, emptyList()))
                     print("O")
-                else if (Position(x, y) in fixed.getOrDefault(x, emptyList())) {
+                else if (Point(x, y) in fixed.getOrDefault(x, emptyList())) {
                     print("#")
                 } else {
                     print(".")
@@ -93,8 +93,8 @@ fun main() {
         val (fixedRocksNorth, movableRocks) = parseInput(input)
 
         var currentMovableRocks = movableRocks
-        val northSouthLength = Position(input[0].length, input.size)
-        val eastWestLength = Position(northSouthLength.y, northSouthLength.x)
+        val northSouthLength = Point(input[0].length, input.size)
+        val eastWestLength = Point(northSouthLength.y, northSouthLength.x)
         val fixedRocksWest = fixedRocksNorth.rotateClockwise(eastWestLength)
         //printPositions(fixedRocksNorth.values.flatten().toSet(), northSouthLength)
         //println()

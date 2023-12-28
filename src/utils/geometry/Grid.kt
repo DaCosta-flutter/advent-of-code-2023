@@ -5,16 +5,16 @@ import java.util.LinkedList
 import java.util.PriorityQueue
 import kotlin.math.min
 
-typealias Grid = Map<Position, Char>
+typealias Grid = Map<Point, Char>
 
 fun List<String>.toGrid(): Grid =
     this.indices.flatMap { y ->
         this[y].indices.map { x ->
-            Position(x, y)
+            Point(x, y)
         }
     }.associateWith { this.atPos(it) }
 
-fun Grid.cartesianNeighboursInGrid(pos: Position) = pos.cartesianNeighbours().filter { it in this }.toSet()
+fun Grid.cartesianNeighboursInGrid(pos: Point) = pos.cartesianNeighbours().filter { it in this }.toSet()
 
 fun Grid.get2DArray(nonFilled: Char = ' '): MutableList<MutableList<Char>> {
     val minY = min(0, this.minOf { it.key.y })
@@ -24,7 +24,7 @@ fun Grid.get2DArray(nonFilled: Char = ' '): MutableList<MutableList<Char>> {
 
     return (minY..maxY).map { y ->
         (minX..maxX).map { x ->
-            this[Position(x, y)] ?: nonFilled
+            this[Point(x, y)] ?: nonFilled
         }.toMutableList()
     }.toMutableList()
 }
@@ -39,12 +39,12 @@ fun Grid.print(nonFilled: Char = ' ') {
 }
 
 fun Grid.bfs(
-    startPosition: Position,
-    inclusionCriteria: (Position) -> Boolean = { _ -> true },
-    toVisitFromPos: (Position) -> Collection<Position> = { curPos -> this.cartesianNeighboursInGrid(curPos) }
-): List<Position> {
-    val toVisit = LinkedList<Position>().apply { add(startPosition) }
-    val visited = mutableSetOf<Position>()
+    startPoint: Point,
+    inclusionCriteria: (Point) -> Boolean = { _ -> true },
+    toVisitFromPos: (Point) -> Collection<Point> = { curPos -> this.cartesianNeighboursInGrid(curPos) }
+): List<Point> {
+    val toVisit = LinkedList<Point>().apply { add(startPoint) }
+    val visited = mutableSetOf<Point>()
 
     while (toVisit.isNotEmpty()) {
         val curPos = toVisit.pop()
@@ -91,9 +91,9 @@ fun Grid.numInteriorPoints(numBoundaryPoints: Long, charsToConsider: Char? = nul
 
 typealias Distance = Int
 
-fun Grid.shortestPath(startPos: Position, targetPos: Position): Int? {
-    val toVisit = PriorityQueue<Pair<Position, Distance>>(Comparator.comparing { it.second })
-    val visited = mutableMapOf<Position, Distance>()
+fun Grid.shortestPath(startPos: Point, targetPos: Point): Int? {
+    val toVisit = PriorityQueue<Pair<Point, Distance>>(Comparator.comparing { it.second })
+    val visited = mutableMapOf<Point, Distance>()
 
     while (toVisit.isNotEmpty() && targetPos !in visited) {
         val (curPos, distance) = toVisit.remove()
