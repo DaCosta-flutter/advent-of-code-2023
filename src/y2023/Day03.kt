@@ -1,9 +1,11 @@
+package y2023
+
 import utils.geometry.Grid
 import utils.geometry.Point
 import utils.geometry.neighbours
 import utils.geometry.toGrid
 import utils.println
-import utils.readInput
+import utils.readInput2023
 
 fun main() {
     val day = "03"
@@ -82,13 +84,13 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day${day}_test")
+    val testInput = readInput2023("Day${day}_test")
     val testResult = part2(testInput)
 
     println("Test input: $testResult")
     check(testResult == 467835)
 
-    val input = readInput("Day${day}")
+    val input = readInput2023("Day${day}")
     part1(input).println()
     part2(input).println()
 }

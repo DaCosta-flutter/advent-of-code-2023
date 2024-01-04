@@ -1,5 +1,7 @@
+package y2023
+
 import utils.println
-import utils.readInput
+import utils.readInput2023
 
 fun main() {
     fun part1(input: List<String>): Int {
@@ -25,13 +27,13 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day01_test")
+    val testInput = readInput2023("Day01_test")
     val part2Result = part2(testInput)
 
     println("Test input part 2: $part2Result")
     check(part2(testInput) == 281)
 
-    val input = readInput("Day01")
+    val input = readInput2023("Day01")
     part1(input).println()
     part2(input).println()
 }

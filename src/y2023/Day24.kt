@@ -1,5 +1,7 @@
+package y2023
+
 import utils.println
-import utils.readInput
+import utils.readInput2023
 
 fun main() {
     val day = "24"
@@ -120,7 +122,7 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day${day}_test")
+    val testInput = readInput2023("Day${day}_test")
 
     // Check test inputs
     val testRange = 7.0..27.0
@@ -129,7 +131,7 @@ fun main() {
 
     val range = 200_000_000_000_000.0..400_000_000_000_000.0
 
-    val input = readInput("Day${day}")
+    val input = readInput2023("Day${day}")
     part1(input, range).println()
     part2(input).println()
 

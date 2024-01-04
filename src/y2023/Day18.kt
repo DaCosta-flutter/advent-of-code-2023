@@ -1,11 +1,13 @@
+package y2023
+
 import utils.geometry.Direction2D
 import utils.geometry.Grid
 import utils.geometry.Point
-import utils.geometry.cartesianDistance
+import utils.geometry.manhattanDistance
 import utils.geometry.moveTo
 import utils.geometry.numInteriorPoints
 import utils.println
-import utils.readInput
+import utils.readInput2023
 
 typealias Instruction = Pair<Direction2D, Int>
 
@@ -17,7 +19,7 @@ fun main() {
         var numEdges = 0L
         instructions.forEach { (direction, numMoves) ->
             val newVertex = vertices.last().moveTo(numMoves, direction)
-            numEdges += newVertex.cartesianDistance(vertices.last())
+            numEdges += newVertex.manhattanDistance(vertices.last())
             vertices.add(newVertex)
         }
 
@@ -61,13 +63,13 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day${day}_test")
+    val testInput = readInput2023("Day${day}_test")
 
     // Check test inputs
     utils.check(62L, part1(testInput), "Part 1")
     utils.check(952408144115L, part2(testInput), "Part 2")
 
-    val input = readInput("Day${day}")
+    val input = readInput2023("Day${day}")
     part1(input).println()
     part2(input).println()
 }

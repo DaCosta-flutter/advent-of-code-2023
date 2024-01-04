@@ -1,6 +1,8 @@
+package y2023
+
 import utils.findLCM
 import utils.println
-import utils.readInput
+import utils.readInput2023
 import java.util.LinkedList
 
 fun main() {
@@ -265,8 +267,8 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day${day}_test")
-    val input = readInput("Day${day}")
+    val testInput = readInput2023("Day${day}_test")
+    val input = readInput2023("Day${day}")
 
     // Check test inputs
     utils.check(11687500L, part1(testInput), "Part 1")

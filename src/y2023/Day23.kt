@@ -1,10 +1,12 @@
+package y2023
+
 import utils.geometry.Point
-import utils.geometry.cartesianNeighbours
+import utils.geometry.cardinalNeighbours
 import utils.geometry.atPos
 import utils.geometry.down
 import utils.geometry.left
 import utils.println
-import utils.readInput
+import utils.readInput2023
 import utils.geometry.right
 import utils.geometry.toGrid
 import utils.geometry.up
@@ -23,7 +25,7 @@ fun main() {
                 return 0
             }
             val toVisit = when (input.atPos(curPos)) {
-                '.' -> curPos.cartesianNeighbours().filter { it in trailByPosition && trailByPosition[it] != '#' }
+                '.' -> curPos.cardinalNeighbours().filter { it in trailByPosition && trailByPosition[it] != '#' }
                 '>' -> setOf(curPos.right())
                 '<' -> setOf(curPos.left())
                 '^' -> setOf(curPos.up())
@@ -67,14 +69,14 @@ fun main() {
 
                 return finalVertex to distanceToPreviousVertex
             }
-            val toVisit = pos.cartesianNeighbours()
+            val toVisit = pos.cardinalNeighbours()
                 .filter { it in trailByPosition }
                 .filter { trailByPosition[it] != '#' }
                 .filter { it !in visited }
                 .toSet()
 
             if (toVisit.isEmpty()) {
-                pos.cartesianNeighbours().filter { it in vertexByPos }
+                pos.cardinalNeighbours().filter { it in vertexByPos }
                     .filter { it != previousVertex.pos }
                     .map { vertexByPos[it]!! }
                     .map { vertex ->
@@ -147,13 +149,13 @@ fun main() {
     }
 
 // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day${day}_test")
+    val testInput = readInput2023("Day${day}_test")
 
 // Check test inputs
     utils.check(94L, part1(testInput), "Part 1")
     utils.check(154, part2(testInput), "Part 2")
 
-    val input = readInput("Day${day}")
+    val input = readInput2023("Day${day}")
     part1(input).println()
     part2(input).println()
 }

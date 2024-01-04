@@ -1,5 +1,7 @@
+package y2023
+
 import utils.println
-import utils.readInput
+import utils.readInput2023
 import java.util.LinkedList
 
 fun main() {
@@ -106,13 +108,13 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day${day}_test")
+    val testInput = readInput2023("Day${day}_test")
 
     // Check test inputs
     //check(54, part1(testInput), "Part 1")
     utils.check(testInput.size.toLong(), part2(testInput), "Part 2")
 
-    val input = readInput("Day${day}")
+    val input = readInput2023("Day${day}")
     part1(input).println()
     part2(input).println()
 }

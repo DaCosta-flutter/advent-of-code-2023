@@ -1,5 +1,7 @@
+package y2023
+
 import utils.println
-import utils.readInput
+import utils.readInput2023
 import java.math.BigInteger
 
 typealias WorkInstruction = String
@@ -150,12 +152,12 @@ fun main() {
         return acceptedGraphs.map { it.totalNumCombinations() }.fold(BigInteger.ZERO) { acc, v -> acc.add(v) }
     }
 
-    val testInput = readInput("Day${day}_test")
+    val testInput = readInput2023("Day${day}_test")
 
     utils.check(19114L, part1(testInput), "Part 1")
     utils.check(BigInteger.valueOf(167409079868000L), part2(testInput), "Part 2")
 
-    val input = readInput("Day${day}")
+    val input = readInput2023("Day${day}")
     part1(input).println()
     part2(input).println()
 }

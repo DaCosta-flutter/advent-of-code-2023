@@ -14,7 +14,7 @@ fun List<String>.toGrid(): Grid =
         }
     }.associateWith { this.atPos(it) }
 
-fun Grid.cartesianNeighboursInGrid(pos: Point) = pos.cartesianNeighbours().filter { it in this }.toSet()
+fun Grid.cartesianNeighboursInGrid(pos: Point) = pos.cardinalNeighbours().filter { it in this }.toSet()
 
 fun Grid.get2DArray(nonFilled: Char = ' '): MutableList<MutableList<Char>> {
     val minY = min(0, this.minOf { it.key.y })
@@ -56,6 +56,24 @@ fun Grid.bfs(
             }
     }
     return visited.toList()
+}
+
+fun Grid.floodFill(startPoint: Point, newValue: Char): Grid {
+    val originalValue = get(startPoint) ?: return this
+    val visited = mutableSetOf<Point>()
+    val queue = ArrayDeque<Point>()
+    queue.add(startPoint)
+
+    val newGrid = mutableMapOf<Point, Char>()
+
+    while (queue.isNotEmpty()) {
+        val current = queue.removeFirst()
+        if (current in visited || get(current) != originalValue) continue
+        newGrid[current] = newValue
+        visited.add(current)
+        queue.addAll(current.cardinalNeighbours())
+    }
+    return newGrid
 }
 
 /**

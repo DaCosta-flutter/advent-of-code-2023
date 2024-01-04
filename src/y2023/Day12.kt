@@ -1,5 +1,7 @@
+package y2023
+
 import utils.println
-import utils.readInput
+import utils.readInput2023
 
 enum class SpringStatus { DAMAGED, OPERATIONAL, UNKNOWN }
 
@@ -7,15 +9,15 @@ fun main() {
     val day = "12"
 
     data class Row(
-        val springStatus: List<SpringStatus>,
+        val springStatus: List<y2023.SpringStatus>,
         val damagedList: List<Int>,
     )
 
-    fun List<SpringStatus>.currentDamaged(): List<Int> {
+    fun List<y2023.SpringStatus>.currentDamaged(): List<Int> {
         val damagedList = mutableListOf<Int>()
         var currentDamagedCount = 0
         this.forEach {
-            if (it == SpringStatus.DAMAGED) currentDamagedCount++
+            if (it == y2023.SpringStatus.DAMAGED) currentDamagedCount++
             else if (currentDamagedCount > 0) {
                 damagedList.add(currentDamagedCount)
                 currentDamagedCount = 0
@@ -27,7 +29,7 @@ fun main() {
         return damagedList
     }
 
-    fun List<SpringStatus>.isPartialValid(damaged: List<Int>): Boolean {
+    fun List<y2023.SpringStatus>.isPartialValid(damaged: List<Int>): Boolean {
         val currentDamaged = this.currentDamaged()
         return currentDamaged.size <= damaged.size &&
                 currentDamaged.indices.all { if (it < currentDamaged.lastIndex) currentDamaged[it] == damaged[it] else currentDamaged[it] <= damaged[it] }
@@ -51,12 +53,12 @@ fun main() {
             totalDamaged += damageStreak
         return if (this.springStatus.size == idx) {
             if (this.damagedList == totalDamaged) 1 else 0
-        } else if (this.springStatus[idx] == SpringStatus.UNKNOWN) {
+        } else if (this.springStatus[idx] == y2023.SpringStatus.UNKNOWN) {
             val damagedPermutationRes = if (isPartialValid(this.damagedList, currentDamaged, damageStreak + 1))
                 this.numPermutations(idx + 1, currentDamaged, damageStreak + 1) else 0
             this.numPermutations(idx + 1, totalDamaged, 0) + damagedPermutationRes
         } else {
-            val isDamagedInIdx = this.springStatus[idx] == SpringStatus.DAMAGED
+            val isDamagedInIdx = this.springStatus[idx] == y2023.SpringStatus.DAMAGED
             if (isDamagedInIdx && !isPartialValid(this.damagedList, currentDamaged, damageStreak + 1)) {
                 0
             } else
@@ -70,14 +72,14 @@ fun main() {
         }
     }
 
-    fun Row.numPermutations2(currentSpringStatus: List<SpringStatus> = emptyList()): Int {
+    fun Row.numPermutations2(currentSpringStatus: List<y2023.SpringStatus> = emptyList()): Int {
         return if (this.springStatus.size == currentSpringStatus.size) {
             if (currentSpringStatus.currentDamaged() == this.damagedList)
                 1 else 0
-        } else if (this.springStatus[currentSpringStatus.lastIndex + 1] == SpringStatus.UNKNOWN) {
+        } else if (this.springStatus[currentSpringStatus.lastIndex + 1] == y2023.SpringStatus.UNKNOWN) {
             if (currentSpringStatus.isPartialValid(this.damagedList))
-                this.numPermutations2(currentSpringStatus + SpringStatus.DAMAGED) +
-                        this.numPermutations2(currentSpringStatus + SpringStatus.OPERATIONAL)
+                this.numPermutations2(currentSpringStatus + y2023.SpringStatus.DAMAGED) +
+                        this.numPermutations2(currentSpringStatus + y2023.SpringStatus.OPERATIONAL)
             else 0
         } else {
             this.numPermutations2(currentSpringStatus + this.springStatus[currentSpringStatus.lastIndex + 1])
@@ -92,9 +94,9 @@ fun main() {
             val (springsStr, damagedListStr) = line.split(" ").let { it[0] to it[1] }
             val springStatuses = springsStr.map {
                 when (it) {
-                    '?' -> SpringStatus.UNKNOWN
-                    '.' -> SpringStatus.OPERATIONAL
-                    '#' -> SpringStatus.DAMAGED
+                    '?' -> y2023.SpringStatus.UNKNOWN
+                    '.' -> y2023.SpringStatus.OPERATIONAL
+                    '#' -> y2023.SpringStatus.DAMAGED
                     else -> throw IllegalArgumentException("$it status not valid")
                 }
             }
@@ -107,7 +109,7 @@ fun main() {
         val origRows = parseInput(input)
 
         return origRows.map { row ->
-            val springStatus = (1..5).flatMap { if (it != 5) row.springStatus + SpringStatus.UNKNOWN else row.springStatus }
+            val springStatus = (1..5).flatMap { if (it != 5) row.springStatus + y2023.SpringStatus.UNKNOWN else row.springStatus }
             val damaged = (1..5).flatMap { row.damagedList }
             Row(springStatus, damaged)
         }
@@ -120,13 +122,13 @@ fun main() {
         .sumOf { cache.clear(); it.numPermutations().toLong().also { println("result=$it") } }
 
 // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day${day}_test")
+    val testInput = readInput2023("Day${day}_test")
 
 // Check test inputs
     utils.check(21L, part1(testInput), "Part 1")
     utils.check(525152L, part2(testInput), "Part 2")
 
-    val input = readInput("Day${day}")
+    val input = readInput2023("Day${day}")
     part1(input).println()
     part2(input).println()
 }

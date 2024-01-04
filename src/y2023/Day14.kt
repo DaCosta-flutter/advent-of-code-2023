@@ -1,7 +1,9 @@
+package y2023
+
 import utils.geometry.Point
 import utils.geometry.toGrid
 import utils.println
-import utils.readInput
+import utils.readInput2023
 
 typealias PositionsByX = Map<Int, Set<Point>>
 
@@ -152,7 +154,7 @@ fun main() {
     }
 
 // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day${day}_test")
+    val testInput = readInput2023("Day${day}_test")
 
 // Check test inputs
     //  check(136L, part1(testInput), "Part 1")
@@ -160,7 +162,7 @@ fun main() {
     //check(64L, part2(testInput).also { println("Test result part 2 is $it") }, "Part 2")
     newMovableCache.clear()
 
-    val input = readInput("Day${day}")
+    val input = readInput2023("Day${day}")
 
     //part1(input).println()
     newMovableCache.clear()

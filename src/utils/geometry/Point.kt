@@ -41,7 +41,7 @@ fun Point.down() = this.copy(y = y + 1)
 fun Point.left() = this.copy(x = x - 1)
 fun Point.right() = this.copy(x = x + 1)
 
-fun Point.cartesianNeighbours() = setOf(
+fun Point.cardinalNeighbours() = setOf(
     this.up(), this.down(), this.left(), this.right()
 )
 
@@ -53,7 +53,7 @@ fun Point.neighbours(): Set<Point> = (-1..1)
 
 //fun Position.lineTo(other: Position) =
 
-fun Point.cartesianDistance(other: Point): Int = abs(this.x - other.x) + abs(this.y - other.y)
+fun Point.manhattanDistance(other: Point): Int = abs(this.x - other.x) + abs(this.y - other.y)
 
 enum class Direction2D {
     UP, DOWN, RIGHT, LEFT
